@@ -1,0 +1,644 @@
+{
+ "tool": "proposal_tool",
+ "version": "4.11.0",
+ "stage": "proposal",
+ "stageLabel": "Proposal",
+ "stageFills": "The plan: who the system is for, what it will do, how it will be built and checked, and who does what. Nothing is implemented yet: the Delivery and evidence part stays empty.",
+ "saved": "2026-10-15T12:00:00.000Z",
+ "proposal": {
+  "course": "SEN0401",
+  "stage": "proposal",
+  "semester": "2026-2027 Fall",
+  "title": "Verifiable donation ledger for a student volunteer club, anchored on Bitcoin signet",
+  "customers": [
+   {
+    "name": "Student volunteer club",
+    "contact": "TODO: club treasurer or president, full name and role",
+    "reached": "TODO: how and when, e.g. meeting at the club office on 2026-10-08",
+    "relation": "owner",
+    "gets": "a public, checkable record of every donation and expense without extra bookkeeping work for the treasurer"
+   }
+  ],
+  "endUsers": [
+   {
+    "group": "Club treasurer",
+    "who": "the elected treasurer of the volunteer club and one deputy",
+    "task": "records each donation received and each expense paid, with its receipt",
+    "frequency": "several times a week",
+    "device": "laptop browser"
+   },
+   {
+    "group": "Donor",
+    "who": "students, alumni and local shops who give money to the club's campaigns",
+    "task": "checks that their own donation was recorded and sees how the campaign money was spent",
+    "frequency": "after each donation, a few times per term",
+    "device": "phone"
+   },
+   {
+    "group": "Club auditor",
+    "who": "the club's faculty advisor and the members of the club's audit board",
+    "task": "checks that the term's ledger is complete and has not been changed since it was published",
+    "frequency": "once a term, before the general assembly",
+    "device": "laptop browser"
+   }
+  ],
+  "problem": "The volunteer club raises money for three to four campaigns every term, such as winter clothing drives and school book collections, and collects roughly 250 donations a term from students, alumni and local shops. Today the treasurer keeps the accounts in a shared spreadsheet and posts a summary on social media at the end of each campaign. Donors cannot check that their own donation was counted, and nobody outside the board can tell whether a row was edited or deleted after the summary was posted. At the last general assembly the board spent about 6 hours answering questions about where the money went, and two members asked for an external audit that the club cannot afford. When the treasurer changes every year, the spreadsheet history and the receipts are partly lost, so the new board cannot prove the previous term's totals either. Low trust keeps donations small: the club believes that a visible, checkable record would bring back donors who stopped giving after earlier doubts.",
+  "mission": "Give the Club treasurer a simple way to record every donation and expense as linked data whose weekly fingerprint is anchored on the Bitcoin signet, so that each Donor can prove their own donation is in the ledger and a Club auditor can verify the whole term's accounts without trusting the spreadsheet or the board.",
+  "missionOrigin": "IOrigin_OwnerStated",
+  "outcome": "A donor opens the receipt link on their phone and sees that their donation is included in an anchored weekly batch; the auditor runs one check over the term and sees every batch match its anchor, and any edited or deleted entry fails the check at once.",
+  "areas": [
+   {
+    "area": "Ledger records",
+    "where": "ledger/ and shapes/",
+    "measure": "spreadsheet only, no model today"
+   },
+   {
+    "area": "Merkle batching and anchoring on signet",
+    "where": "anchor/",
+    "measure": "no anchors today"
+   },
+   {
+    "area": "Donor and auditor portal",
+    "where": "web/",
+    "measure": "no pages today"
+   }
+  ],
+  "deliverables": [
+   {
+    "text": "JSON-LD donation and expense records using schema.org and PROV-O, with SHACL shapes",
+    "area": "A1",
+    "layer": "Layer_Product",
+    "kind": "Kind_Functional"
+   },
+   {
+    "text": "Treasurer entry form that refuses an invalid record with reasons",
+    "area": "A1",
+    "layer": "Layer_Product",
+    "kind": "Kind_Functional"
+   },
+   {
+    "text": "Weekly Merkle-tree batcher and OP_RETURN anchoring service on signet",
+    "area": "A2",
+    "layer": "Layer_Product",
+    "kind": "Kind_Functional"
+   },
+   {
+    "text": "No personal data on the blockchain: only a 32-byte Merkle root per batch",
+    "area": "A2",
+    "layer": "Layer_Product",
+    "kind": "Kind_NonFunctional"
+   },
+   {
+    "text": "Donor receipt page with Merkle inclusion proof and auditor term check",
+    "area": "A3",
+    "layer": "Layer_Product",
+    "kind": "Kind_Functional"
+   },
+   {
+    "text": "Receipt verification answers in under 3 seconds on a phone",
+    "area": "A3",
+    "layer": "Layer_Product",
+    "kind": "Kind_NonFunctional"
+   }
+  ],
+  "exclusions": [
+   {
+    "what": "Mainnet transactions and real bitcoin fees",
+    "why": "the course project runs on signet only and the club does not hold bitcoin"
+   },
+   {
+    "what": "Accepting donations in cryptocurrency or handling payments",
+    "why": "money still moves through the club's bank account; the system only records and proves the ledger"
+   },
+   {
+    "what": "Connection to the bank's systems",
+    "why": "no bank offers the club an API; the treasurer enters records from the bank statement"
+   },
+   {
+    "what": "Storing names or receipts on the chain",
+    "why": "KVKK forbids publishing personal data; only fingerprints leave the club's store"
+   }
+  ],
+  "entities": [
+   {
+    "entity": "Donation",
+    "def": "a schema:DonateAction with amount, campaign, date and a salted donor pseudonym",
+    "create": "yes",
+    "use": "yes",
+    "end": "no"
+   },
+   {
+    "entity": "Expense",
+    "def": "a payment from a campaign's money with amount, purpose and a scanned receipt",
+    "create": "yes",
+    "use": "yes",
+    "end": "no"
+   },
+   {
+    "entity": "Ledger batch",
+    "def": "the set of records of one week, closed and hashed into a Merkle tree",
+    "create": "yes",
+    "use": "yes",
+    "end": "no"
+   },
+   {
+    "entity": "Anchor",
+    "def": "a signet transaction whose OP_RETURN output holds one batch's Merkle root",
+    "create": "yes",
+    "use": "yes",
+    "end": "no"
+   },
+   {
+    "entity": "Inclusion proof",
+    "def": "the Merkle path that links one record's hash to its batch's anchored root",
+    "create": "yes",
+    "use": "yes",
+    "end": "yes"
+   }
+  ],
+  "projectKinds": [
+   "PK_Audit",
+   "PK_Provenance"
+  ],
+  "tech": [
+   "SchemaOrgVocabulary",
+   "PROVOStandard",
+   "JSONLDContext",
+   "RDFLibPython",
+   "SHACLCore",
+   "PySHACLLib",
+   "OxigraphStore",
+   "SPARQLFamily",
+   "CoolURIPractice",
+   "KVKKRegime"
+  ],
+  "techWhy": "schema.org gives ready terms for donations, money amounts and campaigns, and PROV-O records who entered or corrected each record and when, so the ledger is standard linked data that outlives one treasurer. Records are serialised as JSON-LD for the web pages and handled in Python with RDFLib. SHACL shapes, run with pySHACL, refuse a record without an amount, a campaign or a receipt before it can enter a batch. Oxigraph stores the records and answers SPARQL queries for campaign totals. Stable IRIs give every record a permanent receipt link, and the KVKK regime decides that names never leave the club's store.",
+  "goals": [
+   {
+    "goal": "Donors and auditors can check the ledger without asking the board",
+    "facing": "Facing_Mission",
+    "area": "A3",
+    "why": "trust in the accounts is what the club asked for"
+   },
+   {
+    "goal": "Every donation and expense is a valid linked-data record",
+    "facing": "Facing_Scope",
+    "area": "A1",
+    "why": "an invalid or missing record makes the proof meaningless"
+   },
+   {
+    "goal": "Every weekly batch is anchored on signet",
+    "facing": "Facing_Scope",
+    "area": "A2",
+    "why": "an unanchored batch can still be changed silently"
+   },
+   {
+    "goal": "No personal data reaches the blockchain",
+    "facing": "Facing_Containment",
+    "area": "A2",
+    "why": "KVKK and the club's donors forbid it"
+   }
+  ],
+  "spec": "The system lets the club treasurer enter each donation and expense as a JSON-LD record using schema.org and PROV-O terms, validates it against SHACL shapes and stores it in Oxigraph with a stable IRI. Every week it closes a batch, computes the SHA-256 hash of each canonical record, builds a Merkle tree as Bitcoin does for transactions, and anchors the Merkle root in an OP_RETURN output of a signet transaction through a Bitcoin Core node. A donor's receipt link shows the record, its Merkle path and the anchoring transaction and recomputes the root. The auditor page checks every batch of a term against its anchor. The system refuses invalid records, never edits an anchored record, and never writes personal data to the chain.",
+  "scenarios": [
+   {
+    "kind": "Scen_Nominal",
+    "text": "Given a donation recorded in a batch that has been anchored, when the donor opens their receipt link, then the page recomputes the Merkle root from the inclusion proof and shows that it matches the signet anchor"
+   },
+   {
+    "kind": "Scen_Rejection",
+    "text": "Given an expense whose amount was edited in the store after its batch was anchored, when the auditor runs the term check, then that batch is reported as not matching its anchor and the changed record is named"
+   },
+   {
+    "kind": "Scen_Boundary",
+    "text": "Given a week with an odd number of records, when the batch is closed, then the last hash is duplicated at each odd level as Bitcoin does, and every record's inclusion proof still verifies"
+   }
+  ],
+  "useCase": "Club treasurer: enter donation, enter expense, close week. Donor: open receipt link, verify inclusion. Club auditor: run term check, download report.",
+  "objectives": [
+   {
+    "objective": "Questions to the board about where the money went",
+    "goal": "G1",
+    "mkind": "Meas_Counted",
+    "query": "hours the board spends answering money questions at the general assembly",
+    "baseline": "6",
+    "target": "1",
+    "dir": "Dir_Decrease"
+   },
+   {
+    "objective": "Records that are valid and stored",
+    "goal": "G2",
+    "mkind": "Meas_Counted",
+    "query": "share of the term's donations and expenses that pass the shapes, %",
+    "baseline": "0",
+    "target": "100",
+    "dir": "Dir_Increase"
+   },
+   {
+    "objective": "Weekly batches anchored on signet",
+    "goal": "G3",
+    "mkind": "Meas_Counted",
+    "query": "share of closed weekly batches with a confirmed signet anchor, %",
+    "baseline": "0",
+    "target": "100",
+    "dir": "Dir_Increase"
+   },
+   {
+    "objective": "Personal fields on chain",
+    "goal": "G4",
+    "mkind": "Meas_Counted",
+    "query": "anchoring outputs containing anything other than a 32-byte Merkle root",
+    "baseline": "0",
+    "target": "0",
+    "dir": "Dir_Hold"
+   }
+  ],
+  "activity": "The treasurer enters a donation or an expense in the form. The record is checked against the shapes; if it is invalid it is refused with the reasons. Otherwise it is stored with a stable IRI in the open batch of the week. At the end of the week the treasurer closes the batch: the records are hashed, the Merkle tree is built and the root is sent to the anchoring service, which broadcasts a signet transaction and waits for one confirmation. The transaction id is stored with the batch and every donor's receipt link becomes verifiable.",
+  "sequence": "The treasurer's page posts the record to the ledger service. The service asks pySHACL to validate it, writes it to Oxigraph and answers with its IRI. On closing a batch the service queries the week's records with SPARQL, canonicalises each one, hashes it with SHA-256, builds the Merkle tree and calls the Bitcoin Core signet node over RPC to create, fund and broadcast a transaction with an OP_RETURN output holding the root. The receipt page asks the service for a record and its Merkle path, recomputes the root and asks the node for the transaction to compare them.",
+  "initiativeKind": "Kind_InitialDevelopment",
+  "epics": [
+   {
+    "epic": "Record donations and expenses as validated linked data",
+    "objective": "O2"
+   },
+   {
+    "epic": "Batch and anchor the ledger on signet",
+    "objective": "O3"
+   },
+   {
+    "epic": "Verify without trusting the board",
+    "objective": "O1"
+   }
+  ],
+  "stories": [
+   {
+    "epic": "E1",
+    "role": "Club treasurer",
+    "want": "to enter a donation from the bank statement in under a minute",
+    "so": "keeping the public ledger costs me no more time than the spreadsheet",
+    "ac": "Given a complete donation form When I save it Then a JSON-LD record is stored with an IRI and passes the shapes",
+    "cat": "Cat_NewCapability",
+    "concern": "Concern_Data",
+    "bv": "9",
+    "tc": "7",
+    "rr": "6",
+    "js": "5"
+   },
+   {
+    "epic": "E1",
+    "role": "Club treasurer",
+    "want": "to be told exactly what is missing when an expense is invalid",
+    "so": "I fix it before the week is closed",
+    "ac": "Given an expense without a receipt When I save it Then it is refused and the missing receipt is named",
+    "cat": "Cat_NewCapability",
+    "concern": "Concern_Interface_UI",
+    "bv": "5",
+    "tc": "4",
+    "rr": "6",
+    "js": "2"
+   },
+   {
+    "epic": "E2",
+    "role": "Club treasurer",
+    "want": "to close the week and anchor its Merkle root on signet with one button",
+    "so": "the week's records can no longer be changed silently",
+    "ac": "Given an open batch of valid records When I close it Then a signet transaction carries its Merkle root and the txid is stored with the batch",
+    "cat": "Cat_NewCapability",
+    "concern": "Concern_Security",
+    "bv": "10",
+    "tc": "8",
+    "rr": "8",
+    "js": "8"
+   },
+   {
+    "epic": "E2",
+    "role": "Student volunteer club",
+    "want": "the anchoring service to run against a Bitcoin Core node the club can replace",
+    "so": "the proof does not depend on one member's laptop or on a paid service",
+    "ac": "Given the node address and wallet in the configuration When the service starts Then it checks the node is on signet and refuses any other network",
+    "cat": "Cat_NewCapability",
+    "concern": "Concern_Architecture",
+    "bv": "6",
+    "tc": "4",
+    "rr": "7",
+    "js": "3"
+   },
+   {
+    "epic": "E3",
+    "role": "Donor",
+    "want": "to open my receipt link on my phone and see that my donation is in the anchored ledger",
+    "so": "I can trust that my money was counted",
+    "ac": "Given a donation in an anchored batch When I open its receipt link Then I see the amount, the campaign and a green check that the Merkle proof matches the anchor",
+    "cat": "Cat_NewCapability",
+    "concern": "Concern_Interaction",
+    "bv": "10",
+    "tc": "6",
+    "rr": "5",
+    "js": "5"
+   },
+   {
+    "epic": "E3",
+    "role": "Club auditor",
+    "want": "to check every batch of the term against its anchor in one run",
+    "so": "I can report to the general assembly that the accounts are complete and unchanged",
+    "ac": "Given the term's batches When I run the term check Then each batch is listed as matching or not, and a changed record is named",
+    "cat": "Cat_NewCapability",
+    "concern": "Concern_Security",
+    "bv": "9",
+    "tc": "5",
+    "rr": "9",
+    "js": "5"
+   },
+   {
+    "epic": "E3",
+    "role": "Club auditor",
+    "want": "to read campaign totals of donations and expenses",
+    "so": "I can compare them with the bank statement",
+    "ac": "Given the term's records When I open the totals page Then I see per campaign the sum of donations, the sum of expenses and the balance",
+    "cat": "Cat_NewCapability",
+    "concern": "Concern_Interface",
+    "bv": "6",
+    "tc": "3",
+    "rr": "4",
+    "js": "2"
+   }
+  ],
+  "dod": [
+   {
+    "criterion": "All tests pass in continuous integration",
+    "check": "GitHub Actions on every push"
+   },
+   {
+    "criterion": "Every stored record conforms to the shapes",
+    "check": "pySHACL in the ledger service's tests"
+   },
+   {
+    "criterion": "Merkle roots agree with a reference implementation",
+    "check": "test vectors from a real Bitcoin block's transactions"
+   },
+   {
+    "criterion": "No personal field in any anchoring output",
+    "check": "a test that decodes every OP_RETURN in the test run"
+   }
+  ],
+  "classModel": "Donation is a schema:DonateAction with a schema:MonetaryAmount, a campaign, a date and a salted donor pseudonym; Expense has an amount, a purpose, a campaign and a receipt file. Both are prov:Entity, generated by an EntryActivity associated with the Treasurer agent. LedgerBatch groups the records of one week and holds the Merkle root; Anchor has a txid, a block height and the root; InclusionProof links one record to its batch through a list of sibling hashes. A record belongs to exactly one batch; a correction is a new record derived from the old one with prov:wasRevisionOf.",
+  "tests": [
+   {
+    "story": "S1",
+    "case": "save a complete synthetic donation and validate it against the shapes",
+    "data": "one synthetic donation"
+   },
+   {
+    "story": "S2",
+    "case": "save an expense without a receipt and expect refusal naming the receipt",
+    "data": "one incomplete expense"
+   },
+   {
+    "story": "S3",
+    "case": "close a batch of ten records, anchor it on signet and read the txid and root back",
+    "data": "ten synthetic records and a funded signet wallet"
+   },
+   {
+    "story": "S4",
+    "case": "start the service against a regtest node and expect it to refuse",
+    "data": "a regtest node configuration"
+   },
+   {
+    "story": "S5",
+    "case": "open a receipt link on a phone-sized screen and verify the proof against the anchor",
+    "data": "one donation in an anchored batch"
+   },
+   {
+    "story": "S6",
+    "case": "edit an amount after anchoring and run the term check",
+    "data": "one altered expense in an anchored batch"
+   },
+   {
+    "story": "S7",
+    "case": "compare campaign totals from SPARQL with hand-computed totals",
+    "data": "a synthetic term of 40 records over two campaigns"
+   }
+  ],
+  "model_Data": "Design-level class diagram: Donation and Expense (prov:Entity, schema.org typed) generated by EntryActivity associated with the Treasurer agent; LedgerBatch holds a Merkle root; Anchor holds txid, block height and root; shapes DonationShape, ExpenseShape and BatchShape guard them.",
+  "model_Security": "State machine of a batch: open, closed, anchoring, anchored; records can be added only while open, a closed batch is hashed once, and an anchored batch is never edited - a correction enters the next batch as a revision of the old record.",
+  "model_User_interface": "Receipt page: one green or red result with amount, campaign, date and a link to the signet transaction; readable on a phone, no login. Treasurer form shows each shape violation next to its field.",
+  "model_Interaction": "Sequence: donor scans the QR code on the paper receipt or taps the link in the thank-you message; the page loads the record and its proof, recomputes the root, fetches the anchor and shows the result.",
+  "model_Architecture": "Deployment view: one Python ledger service with Oxigraph embedded, one Bitcoin Core signet node reached over RPC, and static web pages; the node address and wallet are configuration, so the club can move the service to another machine.",
+  "model_Interface": "Component diagram: TreasurerForm and AuditorPage call the LedgerAPI; LedgerAPI uses Store (Oxigraph, SPARQL) and AnchorService (Bitcoin Core RPC); ReceiptPage calls a read-only VerifyAPI that returns a record, its Merkle path and its txid.",
+  "chainDesign": "Bitcoin signet with a Bitcoin Core node: each week's records are hashed with SHA-256 and combined in a Merkle tree built the way Bitcoin builds a block's transaction tree, and the 32-byte root is written in one OP_RETURN output of a signet transaction. Donors verify inclusion with a Merkle path, as SPV clients do. A blockchain is needed because the club's own database or spreadsheet can be changed by whoever controls it; an anchor in a public, proof-of-work-secured chain lets anyone outside the board check that past records were not altered, without trusting the board or paying an auditor.",
+  "risks": [
+   {
+    "risk": "The signet faucet runs dry or is slow",
+    "likelihood": "medium",
+    "impact": "medium",
+    "mitigation": "keep a funded test wallet from the first week and a regtest fallback for tests"
+   },
+   {
+    "risk": "A donor's name slips into a record that is hashed or anchored",
+    "likelihood": "low",
+    "impact": "high",
+    "mitigation": "only salted pseudonyms in records; a test decodes every OP_RETURN and fails on anything but 32 bytes"
+   },
+   {
+    "risk": "Canonicalisation differs between batching and verifying",
+    "likelihood": "medium",
+    "impact": "high",
+    "mitigation": "one canonicalisation and hashing module shared by both, with fixed test vectors"
+   },
+   {
+    "risk": "The club's treasurer has little time to test the form",
+    "likelihood": "medium",
+    "impact": "medium",
+    "mitigation": "two short sessions agreed in advance; the customer liaison collects feedback in between"
+   }
+  ],
+  "refs": [
+   {
+    "ref": "Antonopoulos, A. M. (2017). Mastering Bitcoin, 2nd ed. O'Reilly. Chapters 6 (Transactions) and 9 (The Blockchain)."
+   },
+   {
+    "ref": "Nakamoto, S. (2008). Bitcoin: A Peer-to-Peer Electronic Cash System."
+   },
+   {
+    "ref": "Merkle, R. C. (1987). A Digital Signature Based on a Conventional Encryption Function. CRYPTO '87, LNCS 293."
+   },
+   {
+    "ref": "Alm, K.-J. (2019). BIP 325: Signet. Bitcoin Improvement Proposals."
+   },
+   {
+    "ref": "W3C (2013). PROV-O: The PROV Ontology. W3C Recommendation."
+   },
+   {
+    "ref": "W3C (2017). Shapes Constraint Language (SHACL). W3C Recommendation."
+   },
+   {
+    "ref": "W3C (2020). JSON-LD 1.1. W3C Recommendation."
+   },
+   {
+    "ref": "schema.org: DonateAction and MonetaryAmount types, https://schema.org"
+   },
+   {
+    "ref": "Law No. 6698 on the Protection of Personal Data (KVKK), Türkiye."
+   }
+  ],
+  "team": [
+   {
+    "name": "TODO Member 1",
+    "no": "TODO",
+    "email": "TODO@example.invalid",
+    "share": "20",
+    "admin": [
+     "A_TeamLead",
+     "A_ReleaseManager"
+    ],
+    "dev": [
+     "R_Architect",
+     "R_Ops"
+    ]
+   },
+   {
+    "name": "TODO Member 2",
+    "no": "TODO",
+    "email": "TODO@example.invalid",
+    "share": "20",
+    "admin": [
+     "A_CustomerLiaison"
+    ],
+    "dev": [
+     "R_Analyst",
+     "R_Frontend"
+    ]
+   },
+   {
+    "name": "TODO Member 3",
+    "no": "TODO",
+    "email": "TODO@example.invalid",
+    "share": "20",
+    "admin": [
+     "A_DocLead"
+    ],
+    "dev": [
+     "R_Ontologist",
+     "R_Backend"
+    ]
+   },
+   {
+    "name": "TODO Member 4",
+    "no": "TODO",
+    "email": "TODO@example.invalid",
+    "share": "20",
+    "admin": [
+     "A_Facilitator"
+    ],
+    "dev": [
+     "R_Chain",
+     "R_Backend"
+    ]
+   },
+   {
+    "name": "TODO Member 5",
+    "no": "TODO",
+    "email": "TODO@example.invalid",
+    "share": "20",
+    "admin": [
+     "A_QualityLead",
+     "A_LogSteward"
+    ],
+    "dev": [
+     "R_Tester",
+     "R_UX"
+    ]
+   }
+  ],
+  "leads": {
+   "P01": "TODO Member 1",
+   "P02": "TODO Member 2",
+   "P03": "TODO Member 2",
+   "P04": "TODO Member 1",
+   "P05": "TODO Member 3",
+   "P06": "TODO Member 3",
+   "P07": "TODO Member 4",
+   "P08": "TODO Member 4",
+   "P09": "TODO Member 5",
+   "P10": "TODO Member 1",
+   "P11": "TODO Member 2",
+   "P12": "TODO Member 1",
+   "P13": "TODO Member 1",
+   "P14": "TODO Member 1"
+  },
+  "modules": [
+   {
+    "name": "Ledger model and shapes",
+    "kind": "module",
+    "what": "schema.org and PROV-O records with their SHACL shapes",
+    "epic": "E1",
+    "owner": "TODO Member 3",
+    "second": "TODO Member 2"
+   },
+   {
+    "name": "Treasurer entry form",
+    "kind": "feature",
+    "what": "Form for donations and expenses that shows shape violations",
+    "epic": "E1",
+    "owner": "TODO Member 2",
+    "second": "TODO Member 3"
+   },
+   {
+    "name": "Merkle batcher and signet anchoring service",
+    "kind": "module",
+    "what": "Hashes the week's records, builds the Merkle tree and anchors the root in OP_RETURN",
+    "epic": "E2",
+    "owner": "TODO Member 4",
+    "second": "TODO Member 1"
+   },
+   {
+    "name": "Service architecture, CI and node operations",
+    "kind": "module",
+    "what": "Ledger service skeleton, signet node, wallet secrets, CI and releases",
+    "epic": "E2",
+    "owner": "TODO Member 1",
+    "second": "TODO Member 4"
+   },
+   {
+    "name": "Receipt and auditor pages",
+    "kind": "feature",
+    "what": "Donor receipt with inclusion proof and the auditor's term check",
+    "epic": "E3",
+    "owner": "TODO Member 5",
+    "second": "TODO Member 2"
+   },
+   {
+    "name": "Tamper and end-to-end tests",
+    "kind": "module",
+    "what": "Altered-record, Merkle test-vector and signet end-to-end tests",
+    "epic": "E3",
+    "owner": "TODO Member 5",
+    "second": "TODO Member 4"
+   }
+  ],
+  "milestones": [
+   {
+    "date": "2026-10-30",
+    "deliverable": "Ledger model, shapes and treasurer form on synthetic data",
+    "owner": "TODO Member 3"
+   },
+   {
+    "date": "2026-11-20",
+    "deliverable": "Merkle batching and anchoring on signet end to end",
+    "owner": "TODO Member 4"
+   },
+   {
+    "date": "2026-12-04",
+    "deliverable": "Receipt and auditor pages, tried with the club",
+    "owner": "TODO Member 5"
+   },
+   {
+    "date": "2026-12-18",
+    "deliverable": "Tagged release, test report and handover to the club",
+    "owner": "TODO Member 1"
+   }
+  ],
+  "repo": "https://github.com/MT0100/donation-ledger",
+  "worklog": []
+ }
+}
