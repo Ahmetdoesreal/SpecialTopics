@@ -13,8 +13,8 @@
   "customers": [
    {
     "name": "Campus music club",
-    "contact": "the club's events coordinator (TODO: add their name)",
-    "reached": "TODO: how and when, e.g. meeting at the club room on 2026-10-14",
+    "contact": "assumed: the club's events coordinator (not yet contacted)",
+    "reached": "not yet reached; assumed customer, first meeting planned for the week of 2026-10-26",
     "relation": "owner",
     "gets": "tickets that cannot be copied or resold above face value, and a door check that takes seconds"
    }
@@ -44,7 +44,7 @@
   ],
   "problem": "The music club organises three to four concerts a term in a hall of about 300 seats, and sells tickets through Instagram messages, bank transfers and a shared spreadsheet. A ticket is a QR code image sent by message, so anyone can screenshot and forward it: at the last spring concert the gate team found about 40 duplicated QR codes, and the people who arrived first got in while the real buyers were turned away. Popular concerts sell out in hours and tickets then reappear in WhatsApp groups at two to three times the price, which the club cannot stop and students blame on the club. Checking names against the spreadsheet at the door takes about 30 seconds per person, so queues reach 45 minutes and the concert starts late. Students who cannot attend have no safe way to pass their ticket to a friend, and after the event nothing remains of having been there, although many students collect tickets and wristbands as souvenirs.",
   "mission": "Give the Event organiser a way to issue every concert ticket as a token on the Bitcoin signet whose transfers the club co-signs only at face value, so that a Ticket holder can safely pass a ticket to a friend and keep it as a souvenir, and Gate staff can admit only the phone that holds the ticket.",
-  "missionOrigin": "IOrigin_OwnerStated",
+  "missionOrigin": "IOrigin_SessionDrafted",
   "outcome": "At the door the gate staff scan a phone and see within two seconds whether its owner holds an unused ticket; screenshots and copies fail, resales above face value cannot be co-signed, and after the concert every attendee keeps the ticket in their collection as proof of having been there.",
   "areas": [
    {
