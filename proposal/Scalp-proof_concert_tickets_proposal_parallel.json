@@ -1,0 +1,717 @@
+{
+ "tool": "proposal_tool",
+ "version": "4.11.0",
+ "stage": "proposal",
+ "stageLabel": "Proposal",
+ "stageFills": "The plan: who the system is for, what it will do, how it will be built and checked, and who does what. Nothing is implemented yet: the Delivery and evidence part stays empty.",
+ "saved": "2026-10-17T19:02:56.039Z",
+ "proposal": {
+  "course": "SEN0401",
+  "stage": "proposal",
+  "semester": "2026-2027 Fall",
+  "title": "Concert tickets on Bitcoin signet for campus events",
+  "customers": [
+   {
+    "name": "Campus music club",
+    "contact": "Assumed contact: club events coordinator.",
+    "reached": "Not contacted yet. First meeting planned for the week of 2026-10-26.",
+    "relation": "owner",
+    "gets": "Tickets with ownership checks, resale limits and quick entry."
+   }
+  ],
+  "endUsers": [
+   {
+    "group": "Event organiser",
+    "who": "Club members who organise concerts.",
+    "task": "Create events, set ticket rules and issue tickets.",
+    "frequency": "occasional",
+    "device": "laptop browser"
+   },
+   {
+    "group": "Ticket holder",
+    "who": "Students and guests attending concerts.",
+    "task": "Keep, transfer and show tickets on a phone.",
+    "frequency": "occasional",
+    "device": "phone"
+   },
+   {
+    "group": "Gate staff",
+    "who": "Club volunteers at the entrance.",
+    "task": "Scan tickets and admit valid holders.",
+    "frequency": "occasional",
+    "device": "phone"
+   }
+  ],
+  "problem": "The club runs three to four concerts each term for about 300 people. Tickets are sold through messages, bank transfers and a spreadsheet. Buyers receive QR ticket images, which are easy to copy and share. About 40 copied tickets were found at the last spring concert. Some tickets are resold for two to three times their original price. At the entrance, staff check names manually. Each check takes about 30 seconds, and queues can last 45 minutes. These problems make entry slow and create confusion for buyers and staff. Buyers need a simple way to prove ticket ownership, transfer tickets safely to friends when plans change, and keep their tickets as memories after the concert without relying on copied images. The club also needs clear and reliable records of each ticket transfer.",
+  "mission": "Help event organisers issue concert tickets on Bitcoin signet. Let each ticket holder prove ownership at the gate, transfer tickets at or below the original price with club approval, and keep them after the event. Help gate staff reject copied or used tickets and manage entry more easily.",
+  "missionOrigin": "IOrigin_SessionDrafted",
+  "outcome": "Gate staff can check an unused ticket within two seconds. The system rejects copied or used tickets and transfers above the original price. Ticket holders can keep tickets from attended events in their collection.",
+  "areas": [
+   {
+    "area": "Event and ticket records",
+    "where": "model/ and shapes/",
+    "measure": "Only a spreadsheet today."
+   },
+   {
+    "area": "Ticket tokens on signet",
+    "where": "chain/",
+    "measure": "No tokens today."
+   },
+   {
+    "area": "Holder wallet and gate check",
+    "where": "web/",
+    "measure": "QR images and a name list today."
+   }
+  ],
+  "deliverables": [
+   {
+    "text": "schema.org event, offer and ticket records in JSON-LD, with SHACL resale rules.",
+    "area": "A1",
+    "layer": "Layer_Product",
+    "kind": "Kind_Functional"
+   },
+   {
+    "text": "Organiser page to create events and explain invalid rules.",
+    "area": "A1",
+    "layer": "Layer_Product",
+    "kind": "Kind_Functional"
+   },
+   {
+    "text": "Signet ticket script, minting and club-approved transfers.",
+    "area": "A2",
+    "layer": "Layer_Product",
+    "kind": "Kind_Functional"
+   },
+   {
+    "text": "Keep personal data off the chain.",
+    "area": "A2",
+    "layer": "Layer_Product",
+    "kind": "Kind_NonFunctional"
+   },
+   {
+    "text": "Phone wallet with ticket transfers and a collection.",
+    "area": "A3",
+    "layer": "Layer_Product",
+    "kind": "Kind_Functional"
+   },
+   {
+    "text": "Gate scanner with signed challenges and results in under two seconds.",
+    "area": "A3",
+    "layer": "Layer_Product",
+    "kind": "Kind_Functional"
+   }
+  ],
+  "exclusions": [
+   {
+    "what": "Mainnet transactions and real bitcoin",
+    "why": "Use signet only, with no real bitcoin."
+   },
+   {
+    "what": "Taking ticket payments",
+    "why": "The club collects lira payments separately."
+   },
+   {
+    "what": "Stopping payments made outside the system",
+    "why": "The system cannot check cash or other outside payments. It uses the price both sides confirm."
+   },
+   {
+    "what": "Seat maps and reserved seating",
+    "why": "Use standing events with one ticket type."
+   }
+  ],
+  "entities": [
+   {
+    "entity": "Event",
+    "def": "A schema:MusicEvent with date, venue, capacity and resale rules.",
+    "create": "yes",
+    "use": "yes",
+    "end": "no"
+   },
+   {
+    "entity": "Ticket",
+    "def": "A schema:Ticket identified by its mint transaction output.",
+    "create": "yes",
+    "use": "yes",
+    "end": "no"
+   },
+   {
+    "entity": "Ticket output",
+    "def": "The current unspent output, locked to holder and club keys.",
+    "create": "yes",
+    "use": "yes",
+    "end": "yes"
+   },
+   {
+    "entity": "Transfer",
+    "def": "A signet transaction that changes the holder with club approval.",
+    "create": "yes",
+    "use": "yes",
+    "end": "no"
+   },
+   {
+    "entity": "Check-in",
+    "def": "An entry record based on a signed gate challenge.",
+    "create": "yes",
+    "use": "yes",
+    "end": "no"
+   }
+  ],
+  "projectKinds": [
+   "PK_KGWeb",
+   "PK_Provenance"
+  ],
+  "tech": [
+   "SchemaOrgVocabulary",
+   "JSONLDContext",
+   "RDFLibPython",
+   "SHACLCore",
+   "PySHACLLib",
+   "OxigraphStore",
+   "SPARQLFamily",
+   "PROVOStandard",
+   "CoolURIPractice",
+   "KVKKRegime"
+  ],
+  "techWhy": "Use schema.org and JSON-LD for event and ticket records. RDFLib handles these records in Python. SHACL and pySHACL check required fields and resale rules. Oxigraph stores records; SPARQL reads collections and reports. PROV-O tracks ticket creation and transfers. Stable IRIs identify tickets. Keep personal data off the chain for privacy.",
+  "goals": [
+   {
+    "goal": "Admit only holders of unused tickets",
+    "facing": "Facing_Mission",
+    "area": "A3",
+    "why": "Reduce copied tickets and queues."
+   },
+   {
+    "goal": "Keep valid event and ticket records",
+    "facing": "Facing_Scope",
+    "area": "A1",
+    "why": "Transfers and collections need correct data."
+   },
+   {
+    "goal": "Issue and transfer tickets under club rules",
+    "facing": "Facing_Scope",
+    "area": "A2",
+    "why": "Prevent transfers that break the resale rules."
+   },
+   {
+    "goal": "Keep personal data off the chain",
+    "facing": "Facing_Containment",
+    "area": "A2",
+    "why": "Protect holder privacy."
+   }
+  ],
+  "spec": "The organiser creates an event with a capacity, price and resale rules. SHACL checks these records. Each ticket is a signet output that needs both holder and club signatures. One week after the event, the holder can spend it alone. The phone wallet stores the holder's key. The club approves transfers only at or below the original price and allows at most three transfers. At the gate, the wallet signs a fresh challenge. The service checks ownership and whether the ticket was already used. Tickets remain in the holder's collection after the event.",
+  "scenarios": [
+   {
+    "kind": "Scen_Nominal",
+    "text": "Given an unused ticket, when its wallet signs the gate challenge, then admit the holder within two seconds and record entry."
+   },
+   {
+    "kind": "Scen_Rejection",
+    "text": "Given a copied ticket image, when it is scanned without the holder's key, then reject it and show a reason."
+   },
+   {
+    "kind": "Scen_Rejection",
+    "text": "Given a transfer price twice the original price, when approval is requested, then refuse it and keep the current holder."
+   },
+   {
+    "kind": "Scen_Boundary",
+    "text": "Given three previous transfers, when a fourth is requested, then refuse it and explain the limit."
+   }
+  ],
+  "useCase": "Organiser: create events, issue tickets and view reports. Holder: receive, transfer, show and collect tickets. Gate staff: scan tickets and admit holders.",
+  "objectives": [
+   {
+    "objective": "Invalid tickets admitted",
+    "goal": "G1",
+    "mkind": "Meas_Counted",
+    "query": "Number of copied or invalid tickets admitted per event.",
+    "baseline": "40",
+    "target": "0",
+    "dir": "Dir_Decrease"
+   },
+   {
+    "objective": "Valid event and ticket records",
+    "goal": "G2",
+    "mkind": "Meas_Counted",
+    "query": "Percentage of records passing SHACL checks.",
+    "baseline": "0",
+    "target": "100",
+    "dir": "Dir_Increase"
+   },
+   {
+    "objective": "Transfers following the rules",
+    "goal": "G3",
+    "mkind": "Meas_Counted",
+    "query": "Percentage of signet transfers with club approval and a confirmed price at or below the original price.",
+    "baseline": "0",
+    "target": "100",
+    "dir": "Dir_Increase"
+   },
+   {
+    "objective": "Personal data on chain",
+    "goal": "G4",
+    "mkind": "Meas_Counted",
+    "query": "Number of outputs or witnesses containing data other than keys, signatures and the ticket script.",
+    "baseline": "0",
+    "target": "0",
+    "dir": "Dir_Hold"
+   }
+  ],
+  "activity": "Create and validate the event. Mint one ticket output per place and save its ID. After payment, assign the ticket to the buyer's wallet key. For a transfer, both sides confirm the price and the club checks the rules. At the gate, verify the wallet signature and record entry.",
+  "sequence": "The organiser page sends an event to TicketAPI. The service validates it with pySHACL and stores it in Oxigraph. Bitcoin Core funds and signs the mint transaction. For transfers, the wallet signs a PSBT; the service checks the rules, adds the club signature and fee input, then broadcasts it. At the gate, the wallet signs a fresh nonce. The service checks ticket ownership and previous entry.",
+  "initiativeKind": "Kind_InitialDevelopment",
+  "epics": [
+   {
+    "epic": "Create events and issue tickets",
+    "objective": "O2"
+   },
+   {
+    "epic": "Hold and transfer tickets on signet",
+    "objective": "O3"
+   },
+   {
+    "epic": "Check ticket ownership at the gate",
+    "objective": "O1"
+   }
+  ],
+  "stories": [
+   {
+    "epic": "E1",
+    "role": "Event organiser",
+    "want": "to set an event's capacity, price and resale cap",
+    "so": "ticket rules are clear from the start",
+    "ac": "Given a complete event form When I save it Then a valid schema.org MusicEvent with an IRI is stored",
+    "cat": "Cat_NewCapability",
+    "concern": "Concern_Data",
+    "bv": "8",
+    "tc": "6",
+    "rr": "6",
+    "js": "4"
+   },
+   {
+    "epic": "E1",
+    "role": "Event organiser",
+    "want": "to issue all event tickets at once",
+    "so": "ticket sales can start",
+    "ac": "Given an event with capacity 300 When I mint tickets Then one signet transaction creates 300 ticket outputs and each ticket has a page",
+    "cat": "Cat_NewCapability",
+    "concern": "Concern_Architecture",
+    "bv": "9",
+    "tc": "7",
+    "rr": "7",
+    "js": "6"
+   },
+   {
+    "epic": "E2",
+    "role": "Ticket holder",
+    "want": "to receive tickets in a browser wallet",
+    "so": "I can prove ownership without a separate app",
+    "ac": "Given a ticket assigned to my key When I open the wallet Then it shows the event, my ownership and unused status",
+    "cat": "Cat_NewCapability",
+    "concern": "Concern_Interface_UI",
+    "bv": "9",
+    "tc": "6",
+    "rr": "5",
+    "js": "5"
+   },
+   {
+    "epic": "E2",
+    "role": "Ticket holder",
+    "want": "to transfer my ticket at the original price",
+    "so": "a friend can use it if I cannot attend",
+    "ac": "Given an unused ticket priced at or below its original price When both holders confirm Then the club co-signs and the new holder receives it",
+    "cat": "Cat_NewCapability",
+    "concern": "Concern_Security",
+    "bv": "10",
+    "tc": "7",
+    "rr": "9",
+    "js": "8"
+   },
+   {
+    "epic": "E3",
+    "role": "Gate staff",
+    "want": "to check a ticket within two seconds",
+    "so": "people enter quickly",
+    "ac": "Given an unused ticket When its wallet signs the scan challenge Then the scanner shows green and records entry",
+    "cat": "Cat_NewCapability",
+    "concern": "Concern_Interaction",
+    "bv": "10",
+    "tc": "9",
+    "rr": "8",
+    "js": "6"
+   },
+   {
+    "epic": "E3",
+    "role": "Gate staff",
+    "want": "to reject copied or used tickets clearly",
+    "so": "I can explain why entry is refused",
+    "ac": "Given a used ticket When it is scanned again Then the scanner shows red and the first entry time",
+    "cat": "Cat_NewCapability",
+    "concern": "Concern_Security",
+    "bv": "9",
+    "tc": "8",
+    "rr": "9",
+    "js": "3"
+   },
+   {
+    "epic": "E3",
+    "role": "Ticket holder",
+    "want": "to keep tickets after concerts",
+    "so": "I can see the events I attended",
+    "ac": "Given tickets used at past events When I open my collection Then each shows the event date and an attended badge",
+    "cat": "Cat_NewCapability",
+    "concern": "Concern_Interface_UI",
+    "bv": "6",
+    "tc": "3",
+    "rr": "3",
+    "js": "3"
+   },
+   {
+    "epic": "E1",
+    "role": "Campus music club",
+    "want": "to view an event report",
+    "so": "the club can see ticket use and transfers",
+    "ac": "Given a finished event When I open its report Then a SPARQL query shows issued, transferred and used ticket counts",
+    "cat": "Cat_NewCapability",
+    "concern": "Concern_Interface",
+    "bv": "5",
+    "tc": "3",
+    "rr": "4",
+    "js": "2"
+   }
+  ],
+  "dod": [
+   {
+    "criterion": "All automated tests pass",
+    "check": "GitHub Actions on every push."
+   },
+   {
+    "criterion": "Stored events and tickets pass SHACL checks",
+    "check": "Run pySHACL in service tests."
+   },
+   {
+    "criterion": "Ticket spending follows the script rules",
+    "check": "On regtest, test joint signatures, holder-only spending after the time lock and rejection before it."
+   },
+   {
+    "criterion": "No personal data appears on chain",
+    "check": "Decode all test outputs and witnesses."
+   }
+  ],
+  "classModel": "Event stores the date, venue, capacity and ResaleRule. The rule stores the price, resale cap and transfer limit. Ticket belongs to one Event and uses its mint outpoint as its ID. TicketOutput stores the current outpoint, holder key and script. Transfer links old and new outputs, price and club signature. CheckIn records the ticket, time and gate device. Each ticket has one current unspent output.",
+  "tests": [
+   {
+    "story": "S1",
+    "case": "Accept a complete event. Reject a resale cap above its price.",
+    "data": "two synthetic events"
+   },
+   {
+    "story": "S2",
+    "case": "Mint 300 signet tickets and read back their output IDs.",
+    "data": "one valid event and a funded signet wallet"
+   },
+   {
+    "story": "S3",
+    "case": "Assign a ticket to a wallet key and view it on a phone screen.",
+    "data": "one minted ticket"
+   },
+   {
+    "story": "S4",
+    "case": "Accept a transfer at the original price. Reject twice that price.",
+    "data": "one ticket and two wallets"
+   },
+   {
+    "story": "S5",
+    "case": "Scan an unused ticket and measure response time.",
+    "data": "one unused ticket in a wallet"
+   },
+   {
+    "story": "S6",
+    "case": "Reject a copied QR and a second scan of a used ticket.",
+    "data": "one ticket, one copied QR image"
+   },
+   {
+    "story": "S7",
+    "case": "Check in at two events, then view both in the collection.",
+    "data": "two synthetic events with check-ins"
+   },
+   {
+    "story": "S8",
+    "case": "Compare SPARQL report totals with manual counts.",
+    "data": "one synthetic event with 50 tickets, 10 transfers and 40 check-ins"
+   }
+  ],
+  "model_Data": "Event uses schema:MusicEvent. Ticket uses schema:Ticket and prov:Entity. Transfer uses prov:Activity. ResaleRule, TicketOutput and CheckIn complete the model. EventShape, ResaleRuleShape and TransferShape validate the records.",
+  "model_Architecture": "A Python ticket service uses Oxigraph and a Bitcoin Core signet node over RPC. The club key stays in the service. Static web pages provide the organiser panel, wallet and scanner. Node settings and keys are configurable.",
+  "model_Security": "Before the time lock ends, spending needs holder and club signatures. One week after the event, the holder can spend alone. Ticket states are minted, assigned, transferred, checked in and souvenir. Each ticket can be checked in once. Each challenge nonce is used once.",
+  "model_User_interface": "The wallet shows ticket cards with event, date, status, transfer and gate buttons. The scanner shows a large green or red result with a reason. Both screens must be readable on a phone in a dark hall.",
+  "model_Interaction": "The scanner shows a QR challenge. The wallet scans and signs it, then shows a reply QR. The scanner reads the reply, checks with the service and shows the result.",
+  "model_Interface": "The organiser panel, wallet and scanner call TicketAPI. TicketAPI uses the Oxigraph store, pySHACL validator and chain service. The chain service holds the club key and calls Bitcoin Core over RPC.",
+  "chainDesign": "Use Bitcoin Core on signet. Each ticket is a P2WSH output requiring holder and club signatures. OP_CHECKLOCKTIMEVERIFY allows the holder to spend alone one week after the event. The mint outpoint identifies the ticket. Transfers move it to output 0 of the next transaction, preserving its history. The wallet signs a PSBT; the club checks the price, co-signs and adds the fee input. The chain records ownership outside the club database. After the time lock, the holder can control the souvenir without the club.",
+  "risks": [
+   {
+    "risk": "A holder loses their phone or wallet key.",
+    "likelihood": "medium",
+    "impact": "medium",
+    "mitigation": "Show backup words at setup. Plan a club reissue process before the event and mark the old ticket void."
+   },
+   {
+    "risk": "Weak internet slows gate checks.",
+    "likelihood": "medium",
+    "impact": "high",
+    "mitigation": "Cache unspent tickets before the event, check signatures offline and sync entry records later."
+   },
+   {
+    "risk": "Buyers pay extra outside the system.",
+    "likelihood": "high",
+    "impact": "medium",
+    "mitigation": "Limit transfers to three, require a confirmed price and flag unusual transfer histories."
+   },
+   {
+    "risk": "Not enough signet coins to mint tickets.",
+    "likelihood": "medium",
+    "impact": "medium",
+    "mitigation": "Fund the wallet early, use small outputs and run automated tests on regtest."
+   }
+  ],
+  "refs": [
+   {
+    "ref": "Antonopoulos, A. M. (2017). Mastering Bitcoin, 2nd ed. O'Reilly. Chapters 4 (Keys, Addresses), 6 (Transactions) and 7 (Advanced Transactions and Scripting)."
+   },
+   {
+    "ref": "Nakamoto, S. (2008). Bitcoin: A Peer-to-Peer Electronic Cash System."
+   },
+   {
+    "ref": "Todd, P. (2014). BIP 65: OP_CHECKLOCKTIMEVERIFY. Bitcoin Improvement Proposals."
+   },
+   {
+    "ref": "Chow, A. (2017). BIP 174: Partially Signed Bitcoin Transaction Format. Bitcoin Improvement Proposals."
+   },
+   {
+    "ref": "Lombrozo, E., Lau, J. & Wuille, P. (2015). BIP 141: Segregated Witness. Bitcoin Improvement Proposals."
+   },
+   {
+    "ref": "Alm, K.-J. (2019). BIP 325: Signet. Bitcoin Improvement Proposals."
+   },
+   {
+    "ref": "schema.org: MusicEvent, Offer and Ticket types, https://schema.org"
+   },
+   {
+    "ref": "W3C (2017). Shapes Constraint Language (SHACL). W3C Recommendation."
+   },
+   {
+    "ref": "W3C (2020). JSON-LD 1.1. W3C Recommendation."
+   },
+   {
+    "ref": "Law No. 6698 on the Protection of Personal Data (KVKK), Türkiye."
+   }
+  ],
+  "team": [
+   {
+    "name": "Mert Özek",
+    "no": "2300007579",
+    "email": "2300007579@stu.iku.edu.tr",
+    "share": "",
+    "admin": [
+     "A_TeamLead"
+    ],
+    "dev": [
+     "R_Architect",
+     "R_Backend"
+    ]
+   },
+   {
+    "name": "Göktuğ Güncer",
+    "no": "2300006211",
+    "email": "2300006211@stu.iku.edu.tr",
+    "share": "",
+    "admin": [
+     "A_CustomerLiaison"
+    ],
+    "dev": [
+     "R_Frontend",
+     "R_Data",
+     "R_Ontologist"
+    ]
+   },
+   {
+    "name": "İrem Ayranpınar",
+    "no": "2300005623",
+    "email": "2300005623@stu.iku.edu.tr",
+    "share": "",
+    "admin": [
+     "A_DocLead"
+    ],
+    "dev": [
+     "R_Frontend",
+     "R_UX"
+    ]
+   },
+   {
+    "name": "Oğuzhan Kaya",
+    "no": "2200004591",
+    "email": "2200004591@stu.iku.edu.tr",
+    "share": "",
+    "admin": [
+     "A_Facilitator"
+    ],
+    "dev": [
+     "R_Chain",
+     "R_Backend"
+    ]
+   },
+   {
+    "name": "Semih Canik",
+    "no": "2200008618",
+    "email": "2200008618@stu.iku.edu.tr",
+    "share": "",
+    "admin": [
+     "A_LogSteward"
+    ],
+    "dev": [
+     "R_Frontend",
+     "R_UX"
+    ]
+   },
+   {
+    "name": "Sıla Özer",
+    "no": "2300005208",
+    "email": "2300005208@stu.iku.edu.tr",
+    "share": "",
+    "admin": [
+     "A_QualityLead"
+    ],
+    "dev": [
+     "R_Frontend",
+     "R_UX"
+    ]
+   },
+   {
+    "name": "Ahmet Deniz Sezgin",
+    "no": "2300005633",
+    "email": "2300005633@stu.iku.edu.tr",
+    "share": "",
+    "admin": [
+     "A_ReleaseManager"
+    ],
+    "dev": [
+     "R_Backend",
+     "R_Ops"
+    ]
+   }
+  ],
+  "leads": {
+   "P01": "Semih Canik",
+   "P02": "Göktuğ Güncer",
+   "P03": "İrem Ayranpınar",
+   "P04": "Mert Özek",
+   "P05": "İrem Ayranpınar",
+   "P06": "Göktuğ Güncer",
+   "P07": "Oğuzhan Kaya",
+   "P08": "Mert Özek",
+   "P09": "Sıla Özer",
+   "P10": "Ahmet Deniz Sezgin",
+   "P11": "Sıla Özer",
+   "P12": "Oğuzhan Kaya",
+   "P13": "Ahmet Deniz Sezgin",
+   "P14": "Semih Canik"
+  },
+  "modules": [
+   {
+    "name": "Ticket API",
+    "kind": "module",
+    "what": "Event and ticket APIs, transfer rules and gate signature checks. Mert defines the OpenAPI format and JSON examples with the team. He uses mock data and chain services while others build them. In week one, the team connects event creation, wallet display and a gate result with sample data. The owner adds tests, a short guide and a demo. The backup reviews changes and can take over.",
+    "epic": "E2",
+    "owner": "Mert Özek",
+    "second": "Ahmet Deniz Sezgin"
+   },
+   {
+    "name": "Data services and releases",
+    "kind": "module",
+    "what": "Oxigraph storage, ownership records, atomic check-in, report queries, CI and releases. Deniz agrees on data interfaces with Mert and starts with sample records. They share backend integration work. Everyone starts together, uses separate branches and merges small reviewed changes. Real services replace mocks as they become ready. The owner adds tests, a short guide and a demo. The backup reviews changes and can take over.",
+    "epic": "E2",
+    "owner": "Ahmet Deniz Sezgin",
+    "second": "Mert Özek"
+   },
+   {
+    "name": "Organiser frontend",
+    "kind": "feature",
+    "what": "Event form, organiser panel, minting screen and API connections. Irem starts with mock API responses and simple local UI components. Her frontend workload is similar to Sila's. Goktug builds the report screen separately. The owner adds tests, a short guide and a demo. The backup reviews changes and can take over.",
+    "epic": "E1",
+    "owner": "İrem Ayranpınar",
+    "second": "Sıla Özer"
+   },
+   {
+    "name": "Gate scanner frontend",
+    "kind": "feature",
+    "what": "QR challenge flow, entry results, offline-cache screens and API connections. Sila uses simulated valid, copied and used tickets. Her frontend workload is similar to Irem's. She agrees on challenge messages with Semih and Mert. Mert checks signatures; Deniz stores entry records. The owner adds tests, a short guide and a demo. The backup reviews changes and can take over.",
+    "epic": "E3",
+    "owner": "Sıla Özer",
+    "second": "Göktuğ Güncer"
+   },
+   {
+    "name": "Report frontend and data model",
+    "kind": "feature",
+    "what": "Split work roughly equally between report screens/shared UI components and JSON-LD/SHACL data models. Goktug starts with sample reports and valid/invalid records. Later, the report reads Deniz's queries through Mert's API. The owner adds tests, a short guide and a demo. The backup reviews changes and can take over.",
+    "epic": "E1",
+    "owner": "Göktuğ Güncer",
+    "second": "İrem Ayranpınar"
+   },
+   {
+    "name": "Phone wallet",
+    "kind": "feature",
+    "what": "Wallet keys, ticket display, transfers, challenge signing and ticket collection. Semih starts with sample tickets and mock replies. He agrees on challenge messages with Sila and Mert. Semih and Oguzhan review the wallet/chain connection and learn to run each other's modules. The owner adds tests, a short guide and a demo. The backup reviews changes and can take over.",
+    "epic": "E2",
+    "owner": "Semih Canik",
+    "second": "Oğuzhan Kaya"
+   },
+   {
+    "name": "Blockchain service",
+    "kind": "module",
+    "what": "Ticket script, time lock, minting, PSBT signing, signet node and club wallet. Oguzhan agrees on the chain interface with Mert and Semih. He tests transactions independently on regtest before signet. Semih and Oguzhan are each other's backups. The owner adds tests, a short guide and a demo. The backup reviews changes and can take over.",
+    "epic": "E2",
+    "owner": "Oğuzhan Kaya",
+    "second": "Semih Canik"
+   }
+  ],
+  "milestones": [
+   {
+    "date": "2026-10-30",
+    "deliverable": "Data model, SHACL checks, sample records and a report screen prototype.",
+    "owner": "Göktuğ Güncer"
+   },
+   {
+    "date": "2026-10-30",
+    "deliverable": "Organiser panel and minting screen with mock API responses and UI tests.",
+    "owner": "İrem Ayranpınar"
+   },
+   {
+    "date": "2026-11-20",
+    "deliverable": "Ticket API and rule checks, tested and connected to available services.",
+    "owner": "Mert Özek"
+   },
+   {
+    "date": "2026-11-20",
+    "deliverable": "Signet minting and transfers, with regtest checks and wallet examples.",
+    "owner": "Oğuzhan Kaya"
+   },
+   {
+    "date": "2026-12-04",
+    "deliverable": "Wallet, transfers, challenge signing and collection ready for a mock event.",
+    "owner": "Semih Canik"
+   },
+   {
+    "date": "2026-12-04",
+    "deliverable": "Gate scanner ready for a mock event; tests for valid, copied and used tickets.",
+    "owner": "Sıla Özer"
+   },
+   {
+    "date": "2026-12-18",
+    "deliverable": "Data services and reports in the final release. Deniz coordinates packaging; everyone supplies tests and guides. Interfaces and sample data are shared in week one, with integration throughout the project.",
+    "owner": "Ahmet Deniz Sezgin"
+   }
+  ],
+  "repo": "https://github.com/Ahmetdoesreal/SpecialTopics",
+  "worklog": []
+ }
+}
